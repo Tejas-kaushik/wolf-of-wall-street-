@@ -13,12 +13,13 @@ export function ManualLoopVideo() {
     if (!video) return undefined;
 
     const FADE_SECONDS = 0.5;
+    const MAX_OPACITY = 0.26;
 
     video.loop = false;
     video.style.opacity = '0';
 
     const setOpacity = (value: number) => {
-      const nextValue = Math.max(0, Math.min(1, value));
+      const nextValue = Math.max(0, Math.min(MAX_OPACITY, value));
       video.style.opacity = nextValue.toFixed(3);
     };
 
@@ -29,11 +30,11 @@ export function ManualLoopVideo() {
         const remaining = duration - currentTime;
 
         if (currentTime <= FADE_SECONDS) {
-          setOpacity(currentTime / FADE_SECONDS);
+          setOpacity((currentTime / FADE_SECONDS) * MAX_OPACITY);
         } else if (remaining <= FADE_SECONDS) {
-          setOpacity(remaining / FADE_SECONDS);
+          setOpacity((remaining / FADE_SECONDS) * MAX_OPACITY);
         } else {
-          setOpacity(0.72);
+          setOpacity(MAX_OPACITY);
         }
       }
 
@@ -79,7 +80,7 @@ export function ManualLoopVideo() {
   }, []);
 
   return (
-    <div className="fixed inset-x-0 bottom-0 top-[300px] z-0 overflow-hidden bg-background">
+    <div className="fixed inset-x-0 bottom-0 top-[300px] z-0 overflow-hidden bg-night">
       <video
         ref={videoRef}
         className="h-full w-full object-cover transition-opacity duration-100 ease-linear motion-safe-transform"
@@ -89,9 +90,14 @@ export function ManualLoopVideo() {
         preload="auto"
         aria-hidden="true"
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(247,239,227,0.78)_0%,rgba(247,239,227,0.22)_48%,rgba(247,239,227,0.82)_100%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_32%,rgba(255,248,236,0)_0%,rgba(255,248,236,0.28)_54%,#f7efe3_100%)]" />
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-night via-transparent to-night" />
+
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(16,9,6,0.88)_0%,rgba(16,9,6,0.24)_48%,rgba(16,9,6,0.9)_100%)]" />
+
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_32%,rgba(215,168,95,0.06)_0%,rgba(16,9,6,0.48)_56%,#100906_100%)]" />
+
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(142,160,122,0.14),transparent_34%),radial-gradient(circle_at_82%_76%,rgba(168,97,69,0.16),transparent_38%)]" />
     </div>
   );
 }

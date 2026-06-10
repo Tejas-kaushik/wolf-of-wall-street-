@@ -1,336 +1,393 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { FloatingActions } from './components/FloatingActions';
 import { ManualLoopVideo } from './components/ManualLoopVideo';
 import { Navigation } from './components/Navigation';
-import { ScrollRail } from './components/ScrollRail';
+import { ParticleTunnel } from './components/ParticleTunnel';
 
-const MAP_URL = 'https://share.google/03qqYQH0xdGgUjCgb';
+gsap.registerPlugin(ScrollTrigger);
 
-const sections = [
-  { id: 'home', label: 'Arrival' },
-  { id: 'story', label: 'Story' },
-  { id: 'menu', label: 'Menu' },
-  { id: 'visit', label: 'Visit' },
+const heroStats = [
+  ['35', 'Glassford Street'],
+  ['Global', 'Bakes & brews'],
+  ['Slow', 'Coffee moments'],
 ];
 
+const productCards = [
+  {
+    name: 'Milo Mocha',
+    tag: 'Signature cup',
+    description: 'Oat-based Milo, Belgian chocolate, espresso, cold brew, and a soft malt finish.',
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1100&q=85',
+  },
+  {
+    name: 'Iced Milo Mocha',
+    tag: 'Cold favourite',
+    description: 'A chilled malt-mocha pour made for city walks, catchups, and calm study sessions.',
+    image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=1100&q=85',
+  },
+  {
+    name: 'Matcha / Chai Mood',
+    tag: 'Soft sips',
+    description: 'Warm, mellow drinks for customers who want comfort without heavy coffee.',
+    image: 'https://images.unsplash.com/photo-1515823662972-da6a2e4d3002?auto=format&fit=crop&w=1100&q=85',
+  },
+];
+
+const bakeGallery = [
+  {
+    title: 'Filled Croissants',
+    label: 'Buttery layers',
+    image: 'https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?auto=format&fit=crop&w=1200&q=85',
+  },
+  {
+    title: 'Sweet Treats',
+    label: 'Global bakery case',
+    image: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1200&q=85',
+  },
+  {
+    title: 'Savoury Goods',
+    label: 'Warm lunch bakes',
+    image: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=1200&q=85',
+  },
+  {
+    title: 'City Coffee',
+    label: 'Slow morning ritual',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85',
+  },
+];
+
+const menuGroups = [
+  {
+    label: 'Hot cups',
+    items: ['Espresso', 'Americano', 'Mocha', 'Hot Chocolate', 'Matcha', 'Chai', 'Tea'],
+  },
+  {
+    label: 'Cold cups',
+    items: ['Iced Milo Mocha', 'Cold brew style pours', 'Iced mocha', 'Chilled seasonal drinks'],
+  },
+  {
+    label: 'Sweet bakes',
+    items: ['Filled croissants', 'Cake slices', 'Global sweet treats', 'Mango / chocolate bakery specials'],
+  },
+  {
+    label: 'Savoury bakes',
+    items: ['International savoury goods', 'Asian weekly specials', 'China highlights', 'Vietnam highlights', 'India highlights'],
+  },
+];
+
+const floatingTags = ['Coffee', 'Croissants', 'Milo Mocha', 'Global Bakes', 'Merchant City'];
+
 function App() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const sectionRefs = useRef<Array<HTMLElement | null>>([]);
-
-  const goToSection = useCallback((index: number) => {
-    const section = sectionRefs.current[index];
-    section?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
   useEffect(() => {
-    const revealItems = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-          }
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
+        gsap.fromTo(
+          element,
+          { opacity: 0, y: 34, filter: 'blur(10px)' },
+          {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            duration: 1.05,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: element,
+              start: 'top 82%',
+              toggleActions: 'play none none reverse',
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>('[data-float]').forEach((element, index) => {
+        gsap.to(element, {
+          y: index % 2 === 0 ? -18 : 18,
+          rotation: index % 2 === 0 ? 1.5 : -1.5,
+          duration: 3.6 + index * 0.4,
+          ease: 'sine.inOut',
+          repeat: -1,
+          yoyo: true,
         });
-      },
-      { threshold: 0.16, rootMargin: '0px 0px -8% 0px' },
-    );
+      });
 
-    revealItems.forEach((item) => revealObserver.observe(item));
-
-    return () => revealObserver.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const index = Number((entry.target as HTMLElement).dataset.sectionIndex ?? 0);
-          setActiveIndex(index);
+      gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((element) => {
+        gsap.to(element, {
+          yPercent: -10,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: element,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1.1,
+          },
         });
-      },
-      { threshold: 0.48 },
-    );
-
-    sectionRefs.current.forEach((section) => {
-      if (section) observer.observe(section);
+      });
     });
 
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    let rafId = 0;
-
-    const updateScrollProgress = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-      document.documentElement.style.setProperty('--scroll-progress', progress.toFixed(4));
-      rafId = requestAnimationFrame(updateScrollProgress);
-    };
-
-    rafId = requestAnimationFrame(updateScrollProgress);
-
-    return () => cancelAnimationFrame(rafId);
+    return () => ctx.revert();
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-background text-ink">
+    <main className="relative min-h-screen overflow-hidden bg-night text-cream">
+      <ParticleTunnel />
       <ManualLoopVideo />
 
-      <div className="pointer-events-none fixed inset-0 z-[1] bg-[linear-gradient(180deg,rgba(255,248,236,0.96)_0%,rgba(255,248,236,0.52)_30%,rgba(245,226,202,0.58)_70%,rgba(244,233,215,0.96)_100%)]" />
-      <div className="pointer-events-none fixed left-[-12rem] top-20 z-[1] h-[32rem] w-[32rem] rounded-full bg-sage/20 blur-3xl" />
-      <div className="pointer-events-none fixed bottom-[-10rem] right-[-10rem] z-[1] h-[34rem] w-[34rem] rounded-full bg-terracotta/20 blur-3xl" />
-      <div className="pointer-events-none fixed left-1/2 top-[45%] z-[1] h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-cream/35 blur-3xl" />
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-[radial-gradient(circle_at_50%_10%,rgba(214,169,107,0.18),transparent_34%),linear-gradient(180deg,rgba(16,9,5,0.55),rgba(16,9,5,0.92)_45%,rgba(10,6,4,1))]" />
+      <div className="grain pointer-events-none fixed inset-0 z-[2]" />
 
-      <Navigation activeIndex={activeIndex} onNavigate={goToSection} />
-      <ScrollRail activeIndex={activeIndex} count={sections.length} labels={sections.map((section) => section.label)} onNavigate={goToSection} />
+      <Navigation />
+      <FloatingActions />
 
-      <main className="relative z-10">
-        <HeroSection
-          refCallback={(node) => {
-            sectionRefs.current[0] = node;
-          }}
-          onNavigate={goToSection}
-        />
-        <StorySection
-          refCallback={(node) => {
-            sectionRefs.current[1] = node;
-          }}
-        />
-        <MenuSection
-          refCallback={(node) => {
-            sectionRefs.current[2] = node;
-          }}
-        />
-        <VisitSection
-          refCallback={(node) => {
-            sectionRefs.current[3] = node;
-          }}
-        />
-      </main>
-    </div>
-  );
-}
+      <section id="home" className="relative z-10 flex min-h-screen items-center px-5 pb-24 pt-36 sm:px-8 lg:px-12">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <div data-reveal className="mb-7 inline-flex items-center gap-3 rounded-full border border-honey/20 bg-cream/8 px-4 py-2 text-xs font-medium uppercase tracking-[0.26em] text-honey backdrop-blur-xl">
+              Newly opened in Merchant City
+            </div>
 
-type SectionRefProps = {
-  refCallback: (node: HTMLElement | null) => void;
-};
+            <h1 data-reveal className="max-w-5xl font-display text-[clamp(4rem,10vw,10rem)] font-normal leading-[0.82] tracking-[-0.06em] text-cream">
+              Coffee that feels like a quiet corner.
+            </h1>
 
-type HeroSectionProps = SectionRefProps & {
-  onNavigate: (index: number) => void;
-};
+            <p data-reveal className="mt-8 max-w-2xl text-base leading-8 text-milk/72 sm:text-lg">
+              A calm, cinematic cafe experience for The Stramont — global bakes, signature cups,
+              soft lighting, and a Glasgow hideaway for students, creatives, families, and slow morning people.
+            </p>
 
-function HeroSection({ refCallback, onNavigate }: HeroSectionProps) {
-  return (
-    <section
-      ref={refCallback}
-      id="home"
-      data-section-index="0"
-      className="relative flex min-h-screen scroll-mt-0 flex-col items-center justify-center px-6 pb-28 text-center sm:pb-36"
-      style={{ paddingTop: 'calc(8rem - 75px)' }}
-      aria-label="The Stramont hero"
-    >
-      <div className="mx-auto flex max-w-7xl flex-col items-center">
-        <p data-reveal className="reveal mb-6 rounded-full border border-coffee/10 bg-cream/68 px-4 py-2 text-xs uppercase tracking-[0.28em] text-muted shadow-float backdrop-blur-xl">
-          Newly opened cafe · Merchant City, Glasgow
-        </p>
+            <div data-reveal className="mt-10 flex flex-wrap items-center gap-3">
+              <a href="#story" className="rounded-full bg-honey px-7 py-3 text-sm font-semibold text-night shadow-glow transition hover:scale-[1.03]">
+                Explore the cups
+              </a>
+              <a href="#menu" className="rounded-full border border-cream/15 bg-cream/8 px-7 py-3 text-sm font-semibold text-cream backdrop-blur-xl transition hover:scale-[1.03] hover:bg-cream/12">
+                See menu highlights
+              </a>
+            </div>
 
-        <h1 data-reveal className="reveal reveal-delay-1 max-w-7xl font-display text-5xl font-normal leading-[0.95] tracking-[-2.46px] text-ink sm:text-7xl md:text-8xl">
-          Warm coffee, soft bakes, <em className="font-display italic text-muted">quiet little rituals.</em>
-        </h1>
-
-        <p data-reveal className="reveal reveal-delay-2 mt-8 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-          The Stramont is a cozy international bakery and coffee shop shaped for slow mornings,
-          golden pastries, thoughtful pours, and a little nature-soft calm in the middle of the city.
-        </p>
-
-        <div data-reveal className="reveal reveal-delay-3 mt-12 flex flex-col items-center gap-4 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => onNavigate(2)}
-            className="rounded-full bg-coffee px-12 py-4 text-base text-cream shadow-warm transition-transform duration-300 ease-out hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-coffee/20 focus:ring-offset-2 sm:px-14 sm:py-5"
-          >
-            View the Menu Mood
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate(3)}
-            className="rounded-full border border-coffee/15 bg-cream/65 px-8 py-4 text-base text-coffee shadow-float backdrop-blur-xl transition-transform duration-300 ease-out hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-coffee/20 focus:ring-offset-2 sm:px-10 sm:py-5"
-          >
-            Visit Us
-          </button>
-        </div>
-      </div>
-
-      <div className="pointer-events-none absolute bottom-8 left-1/2 hidden -translate-x-1/2 items-center gap-3 text-xs text-muted md:flex">
-        <span className="h-px w-10 bg-coffee/20" />
-        <span>Scroll softly</span>
-        <span className="h-px w-10 bg-coffee/20" />
-      </div>
-    </section>
-  );
-}
-
-function StorySection({ refCallback }: SectionRefProps) {
-  const notes = [
-    ['Morning warmth', 'Cream walls, coffee tones, soft shadows, and a calm first impression.'],
-    ['Nature, not wilderness', 'Sage details, leafy curves, and earthy balance without turning it into a forest site.'],
-    ['Cafe-first feeling', 'Pastry, espresso, counters, trays, mugs, tables, and cozy city energy.'],
-  ];
-
-  return (
-    <section
-      ref={refCallback}
-      id="story"
-      data-section-index="1"
-      className="relative scroll-mt-24 px-6 py-24 sm:py-32"
-      aria-label="The Stramont story"
-    >
-      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-        <div data-reveal className="reveal sticky-copy lg:sticky lg:top-32">
-          <p className="mb-5 text-sm uppercase tracking-[0.32em] text-muted">Cafe Atmosphere</p>
-          <h2 className="font-display text-5xl font-normal leading-[0.92] tracking-[-1.8px] text-ink sm:text-6xl md:text-7xl">
-            Cozy, earthy, <em className="italic text-muted">and made for coffee.</em>
-          </h2>
-          <p className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            The design now feels like a warm cafe brand: soft cream backgrounds, roasted coffee
-            contrast, sage-green nature accents, and floating glass cards that drift in as you scroll.
-          </p>
-        </div>
-
-        <div className="grid gap-5">
-          {notes.map(([title, body], index) => (
-            <article
-              key={title}
-              data-reveal
-              className="reveal floating-card rounded-[2rem] border border-coffee/10 bg-cream/62 p-7 shadow-float backdrop-blur-2xl transition-transform duration-500 hover:-translate-y-1"
-              style={{ transitionDelay: `${index * 90}ms` }}
-            >
-              <div className="flex items-start gap-5">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sage/18 font-display text-2xl text-coffee">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className="font-display text-4xl leading-none text-ink">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">{body}</p>
+            <div data-reveal className="mt-12 grid max-w-2xl grid-cols-3 gap-3">
+              {heroStats.map(([value, label]) => (
+                <div key={label} className="rounded-3xl border border-cream/10 bg-cream/[0.07] p-4 backdrop-blur-2xl">
+                  <div className="font-display text-3xl text-honey">{value}</div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.18em] text-milk/50">{label}</div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function MenuSection({ refCallback }: SectionRefProps) {
-  const cards = [
-    ['Fresh pastries', 'Golden, soft, filled, flaky, and arranged like a proper bakery counter.'],
-    ['Coffee rituals', 'Espresso, lattes, iced pours, and slow-sip drinks with a warm modern finish.'],
-    ['Global bites', 'Sweet and savoury ideas inspired by international bakery traditions.'],
-  ];
-
-  return (
-    <section
-      ref={refCallback}
-      id="menu"
-      data-section-index="2"
-      className="relative scroll-mt-24 px-6 py-24 sm:py-32"
-      aria-label="The Stramont menu"
-    >
-      <div className="mx-auto max-w-7xl">
-        <div data-reveal className="reveal mx-auto max-w-3xl text-center">
-          <p className="mb-5 text-sm uppercase tracking-[0.32em] text-muted">Bakes & Brews</p>
-          <h2 className="font-display text-5xl font-normal leading-[0.92] tracking-[-1.8px] text-ink sm:text-6xl md:text-7xl">
-            A counter full of <em className="italic text-muted">warm little choices.</em>
-          </h2>
-          <p className="mt-8 text-base leading-relaxed text-muted sm:text-lg">
-            Instead of hard page-switching, every card now appears gradually, like you are walking
-            through the cafe and noticing each detail on the counter.
-          </p>
-        </div>
-
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {cards.map(([title, body], index) => (
-            <article
-              key={title}
-              data-reveal
-              className="reveal group min-h-[18rem] rounded-[2.25rem] border border-coffee/10 bg-cream/62 p-7 shadow-float backdrop-blur-2xl transition-all duration-500 hover:-translate-y-1 hover:bg-cream/78"
-              style={{ transitionDelay: `${index * 110}ms` }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-5xl text-coffee">{String(index + 1).padStart(2, '0')}</span>
-                <span className="h-12 w-12 rounded-full border border-coffee/10 bg-[radial-gradient(circle_at_35%_35%,#fff8ec_0%,#d7b58a_45%,#68412b_100%)] shadow-soft transition-transform duration-500 group-hover:scale-110" />
-              </div>
-              <h3 className="mt-12 font-display text-4xl leading-none text-ink">{title}</h3>
-              <p className="mt-4 text-sm leading-relaxed text-muted sm:text-base">{body}</p>
-            </article>
-          ))}
-        </div>
-
-        <div data-reveal className="reveal reveal-delay-2 mx-auto mt-10 flex max-w-4xl flex-wrap justify-center gap-3 text-sm text-muted">
-          {['croissants', 'espresso', 'cakes', 'savoury bakes', 'iced coffee', 'quiet tables'].map((item) => (
-            <span key={item} className="rounded-full border border-coffee/10 bg-cream/58 px-4 py-2 shadow-soft backdrop-blur-xl">
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function VisitSection({ refCallback }: SectionRefProps) {
-  return (
-    <section
-      ref={refCallback}
-      id="visit"
-      data-section-index="3"
-      className="relative scroll-mt-24 px-6 py-24 sm:py-32"
-      aria-label="Visit The Stramont"
-    >
-      <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-        <div data-reveal className="reveal rounded-[2.5rem] border border-coffee/10 bg-cream/68 p-8 shadow-float backdrop-blur-2xl sm:p-10 md:p-12">
-          <p className="mb-5 text-sm uppercase tracking-[0.32em] text-muted">Visit</p>
-          <h2 className="font-display text-5xl font-normal leading-[0.92] tracking-[-1.8px] text-ink sm:text-6xl md:text-7xl">
-            Find your table in <em className="italic text-muted">Merchant City.</em>
-          </h2>
-          <p className="mt-8 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-            Built for a cafe, not a wilderness brand: the final section keeps the nature tone subtle
-            with sage, cream, coffee brown, pastry gold, and warm terracotta edges.
-          </p>
-
-          <div className="mt-10 flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:gap-6">
-            <span>35 Glassford Street, Glasgow</span>
-            <span className="hidden h-px w-10 bg-coffee/20 sm:block" />
-            <span>International bakery & coffee shop</span>
+              ))}
+            </div>
           </div>
 
-          <a
-            href={MAP_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-10 inline-flex rounded-full bg-coffee px-12 py-4 text-base text-cream shadow-warm transition-transform duration-300 ease-out hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-coffee/20 focus:ring-offset-2 sm:px-14 sm:py-5"
-          >
-            Open Map
-          </a>
-        </div>
+          <div data-reveal className="relative min-h-[520px]">
+            <div data-float className="absolute right-2 top-0 z-10 w-[72%] overflow-hidden rounded-[2.2rem] border border-cream/10 bg-cream/10 p-2 shadow-cafe backdrop-blur-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=1200&q=85"
+                alt="Realistic cafe coffee cup on a table"
+                className="h-[390px] w-full rounded-[1.8rem] object-cover"
+              />
+              <div className="absolute bottom-6 left-6 rounded-full bg-night/60 px-4 py-2 text-sm text-cream backdrop-blur-xl">
+                Fresh coffee / soft glow
+              </div>
+            </div>
 
-        <div className="grid gap-4">
-          <div data-reveal className="reveal reveal-delay-1 rounded-[2rem] border border-coffee/10 bg-cream/60 p-7 shadow-float backdrop-blur-2xl">
-            <p className="text-sm uppercase tracking-[0.28em] text-muted">Scroll feel</p>
-            <p className="mt-5 font-display text-4xl leading-none text-ink">No hard panels. Just smooth reveal.</p>
+            <div data-float className="absolute bottom-5 left-0 z-20 w-[58%] overflow-hidden rounded-[2rem] border border-cream/10 bg-cream/10 p-2 shadow-cafe backdrop-blur-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?auto=format&fit=crop&w=1000&q=85"
+                alt="Golden croissants in a warm bakery display"
+                className="h-[260px] w-full rounded-[1.55rem] object-cover opacity-95"
+                onError={(event) => {
+                  event.currentTarget.src =
+                    'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1000&q=85';
+                }}
+              />
+
+              <div className="absolute bottom-5 left-5 rounded-full bg-honey px-4 py-2 text-sm font-semibold text-night">
+                Warm croissants
+              </div>
+            </div>
+
+            <div data-float className="absolute left-8 top-12 rounded-full border border-sage/30 bg-sage/15 px-5 py-3 text-sm text-sage backdrop-blur-xl">
+              calm · cozy · global
+            </div>
           </div>
-          <div data-reveal className="reveal reveal-delay-2 rounded-[2rem] border border-coffee/10 bg-cream/60 p-7 shadow-float backdrop-blur-2xl">
-            <p className="text-sm uppercase tracking-[0.28em] text-muted">Visual direction</p>
-            <p className="mt-5 text-sm leading-relaxed text-muted sm:text-base">
-              Floating cards, warm coffee tones, gentle nature accents, and soft fade-rise motion
-              make the experience feel cozy and premium instead of rigid.
+        </div>
+      </section>
+
+      <section id="story" className="relative z-10 px-5 py-28 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div data-reveal className="max-w-3xl">
+            <p className="text-sm uppercase tracking-[0.28em] text-honey">Signature cups</p>
+            <h2 className="mt-4 font-display text-5xl leading-[0.92] tracking-[-0.04em] text-cream sm:text-7xl">
+              Dark, smooth, not loud. Built for long conversations.
+            </h2>
+          </div>
+
+          <div className="mt-14 grid gap-5 md:grid-cols-3">
+            {productCards.map((card, index) => (
+              <article
+                key={card.name}
+                data-reveal
+                data-parallax
+                className="group relative overflow-hidden rounded-[2rem] border border-cream/10 bg-cream/[0.07] p-3 shadow-cafe backdrop-blur-2xl"
+              >
+                <img
+                  src={card.image}
+                  alt={`${card.name} coffee product`}
+                  className="h-[390px] w-full rounded-[1.55rem] object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+                />
+
+                <div className="absolute inset-x-6 bottom-6 rounded-[1.4rem] border border-cream/10 bg-night/60 p-5 backdrop-blur-2xl">
+                  <div className="mb-3 inline-flex rounded-full bg-honey/90 px-3 py-1 text-xs font-semibold text-night">
+                    {card.tag}
+                  </div>
+                  <h3 className="font-display text-3xl text-cream">{card.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-milk/70">{card.description}</p>
+                  <a href="#visit" className="mt-4 inline-flex rounded-full border border-cream/15 px-4 py-2 text-sm text-cream transition hover:bg-cream hover:text-night">
+                    Try this cup
+                  </a>
+                </div>
+
+                <div className="absolute right-5 top-5 rounded-full bg-night/55 px-3 py-1 text-xs text-cream/80 backdrop-blur-xl">
+                  0{index + 1}
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="journal" className="relative z-10 px-5 py-28 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid items-end gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <div data-reveal>
+              <p className="text-sm uppercase tracking-[0.28em] text-sage">Bakery case</p>
+              <h2 className="mt-4 font-display text-5xl leading-[0.92] tracking-[-0.04em] text-cream sm:text-7xl">
+                Global bakes with a soft Merchant City mood.
+              </h2>
+            </div>
+
+            <p data-reveal className="max-w-2xl text-base leading-8 text-milk/68 sm:ml-auto sm:text-lg">
+              International sweet treats, savoury goods, and rotating global influences are shown as a calm bakery wall instead of a loud fast-food menu.
             </p>
           </div>
+
+          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {bakeGallery.map((item) => (
+              <article key={item.title} data-reveal className="group relative min-h-[390px] overflow-hidden rounded-[2rem] border border-cream/10 bg-cream/[0.06] shadow-cafe">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-110"
+                  onError={(event) => {
+                    event.currentTarget.src =
+                      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-night via-night/20 to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5">
+                  <span className="rounded-full bg-cream/12 px-3 py-1 text-xs uppercase tracking-[0.18em] text-milk backdrop-blur-xl">
+                    {item.label}
+                  </span>
+                  <h3 className="mt-4 font-display text-4xl text-cream">{item.title}</h3>
+                  <a href="#visit" className="mt-4 inline-flex rounded-full bg-cream px-4 py-2 text-sm font-semibold text-night transition hover:scale-105 hover:bg-honey">
+                    Ask in store
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section id="menu" className="relative z-10 px-5 py-28 sm:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-cream/10 bg-cream/[0.06] p-5 shadow-cafe backdrop-blur-2xl sm:p-8 lg:p-10">
+          <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+            <div data-reveal>
+              <p className="text-sm uppercase tracking-[0.28em] text-honey">Menu highlights</p>
+              <h2 className="mt-4 font-display text-5xl leading-[0.92] tracking-[-0.04em] text-cream sm:text-7xl">
+                Choose your mood.
+              </h2>
+              <p className="mt-6 text-base leading-8 text-milk/65">
+                These cards are easy to update when the cafe posts the full official board. The design keeps it premium, readable, and calm.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                {floatingTags.map((tag) => (
+                  <a
+                    key={tag}
+                    href="#visit"
+                    data-float
+                    className="rounded-full border border-cream/12 bg-night/45 px-4 py-2 text-sm text-cream/80 backdrop-blur-xl transition hover:bg-cream hover:text-night"
+                  >
+                    {tag}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {menuGroups.map((group) => (
+                <div key={group.label} data-reveal className="rounded-[1.8rem] border border-cream/10 bg-night/40 p-5 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:bg-night/55">
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <h3 className="font-display text-3xl text-cream">{group.label}</h3>
+                    <a href="#visit" className="rounded-full bg-honey px-3 py-1 text-xs font-bold text-night">
+                      Ask
+                    </a>
+                  </div>
+
+                  <ul className="space-y-3">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex items-start justify-between gap-4 border-t border-cream/8 pt-3 text-sm text-milk/72">
+                        <span>{item}</span>
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sage" />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="visit" className="relative z-10 px-5 pb-40 pt-28 sm:px-8 lg:px-12">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div data-reveal className="overflow-hidden rounded-[2.5rem] border border-cream/10 bg-cream/[0.06] p-3 shadow-cafe backdrop-blur-2xl">
+            <img
+              src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1400&q=85"
+              alt="Warm cafe interior with coffee cups"
+              className="h-[560px] w-full rounded-[2rem] object-cover opacity-90"
+            />
+          </div>
+
+          <div data-reveal className="rounded-[2.5rem] border border-cream/10 bg-night/55 p-8 shadow-cafe backdrop-blur-2xl sm:p-10">
+            <p className="text-sm uppercase tracking-[0.28em] text-sage">Visit The Stramont</p>
+            <h2 className="mt-4 font-display text-5xl leading-[0.92] tracking-[-0.04em] text-cream sm:text-7xl">
+              Come for the cup. Stay for the calm.
+            </h2>
+
+            <p className="mt-6 text-base leading-8 text-milk/68">
+              35 Glassford Street, Merchant City, Glasgow. Warm enough for older guests, cinematic enough for Gen Z, and calm enough for anyone who just wants a good cup.
+            </p>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <a
+                href="https://share.google/03qqYQH0xdGgUjCgb"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full bg-cream px-6 py-3 text-center text-sm font-semibold text-night transition hover:scale-[1.03] hover:bg-honey"
+              >
+                Open Map
+              </a>
+
+              <a
+                href="#menu"
+                className="rounded-full border border-cream/15 px-6 py-3 text-center text-sm font-semibold text-cream transition hover:scale-[1.03] hover:bg-cream/10"
+              >
+                Browse Menu
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
 

@@ -1,23 +1,20 @@
 import { useEffect, useState } from 'react';
 
 const links = [
-  { label: 'Home', href: '#home' },
-  { label: 'The Latest', href: '#stories' },
-  { label: 'Food & Home', href: '#food' },
-  { label: 'Menu', href: '#menu' },
-  { label: 'Order', href: '#order' },
+  { label: 'Articles', href: '#stories' },
   { label: 'Videos', href: '#video' },
-  { label: 'Merch', href: '#merch' },
+  { label: 'Store', href: '#order' },
+  { label: 'Account', href: '#account' },
+  { label: 'Pitch', href: '#owner-pitch' },
   { label: 'Visit', href: '#visit' },
 ];
 
 const quickSearch = [
-  { label: 'Read international stories', href: '#stories' },
-  { label: 'Explore food as home', href: '#food' },
-  { label: 'View the cafe menu', href: '#menu' },
-  { label: 'Order for collection', href: '#order' },
-  { label: 'Watch video stories', href: '#video' },
-  { label: 'Shop merch', href: '#merch' },
+  { label: 'Read articles', href: '#stories' },
+  { label: 'Watch videos', href: '#video' },
+  { label: 'Open the store', href: '#order' },
+  { label: 'Preview member accounts', href: '#account' },
+  { label: 'See business value', href: '#owner-pitch' },
   { label: 'Find the cafe', href: '#visit' },
 ];
 
@@ -94,9 +91,9 @@ export function Navigation() {
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-50 border-b border-[#15100c]/10 bg-[#f4ead8]/92 backdrop-blur-xl">
-        <div className="relative mx-auto flex h-[92px] max-w-[1500px] items-center justify-between px-4 sm:px-8">
-          <div className="flex min-w-[210px] items-center gap-2">
+      <header className="fixed left-0 right-0 top-0 z-[100] border-b border-[#15100c]/10 bg-[#f4ead8] shadow-[0_10px_35px_rgba(21,16,12,0.08)]">
+        <div className="relative mx-auto flex h-[78px] max-w-[1500px] items-center justify-between px-3 sm:h-[92px] sm:px-8">
+          <div className="relative z-20 flex min-w-[86px] items-center gap-3 sm:min-w-[210px]">
             <a
               href="#order"
               onClick={closeMenus}
@@ -106,41 +103,41 @@ export function Navigation() {
                 <EspressoIcon small />
               </span>
 
-              <span className="hidden sm:inline">Order Here</span>
-              <span className="sm:hidden">Order</span>
+              <span className="hidden md:inline">Order Here</span>
+              <span className="md:hidden">Order</span>
             </a>
 
             <a
-              href="#home"
+              href="#stories"
               onClick={closeMenus}
               className="hidden text-xs font-semibold uppercase tracking-[0.08em] text-[#5a3826] transition hover:text-[#15100c] lg:inline-flex"
             >
-              Home
+              Articles
             </a>
 
             <a
-              href="#subscribe"
+              href="#video"
               onClick={closeMenus}
               className="hidden text-xs font-semibold uppercase tracking-[0.08em] text-[#5a3826] transition hover:text-[#15100c] xl:inline-flex"
             >
-              Newsletter
+              Videos
             </a>
           </div>
 
           <a
             href="#home"
             onClick={closeMenus}
-            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-display text-[2.1rem] leading-none tracking-[-0.06em] text-[#15100c] sm:text-[2.65rem]"
+            className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-center font-display text-[2rem] leading-none tracking-[-0.06em] text-[#15100c] sm:text-[2.65rem]"
           >
             The Stramont
             <sup className="ml-1 align-super text-[0.35em] tracking-normal">®</sup>
           </a>
 
-          <div className="ml-auto flex min-w-[210px] items-center justify-end gap-2">
+          <div className="relative z-20 ml-auto flex min-w-[86px] items-center justify-end gap-2 sm:min-w-[210px]">
             <button
               type="button"
               onClick={() => setSearchOpen((value) => !value)}
-              className="hidden rounded-full border border-[#15100c]/15 px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-[#15100c] transition hover:bg-[#15100c] hover:text-[#f4ead8] xl:inline-flex"
+              className="hidden rounded-full border border-[#15100c]/15 bg-[#f4ead8] px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-[#15100c] transition hover:bg-[#15100c] hover:text-[#f4ead8] xl:inline-flex"
             >
               Search
             </button>
@@ -148,7 +145,7 @@ export function Navigation() {
             <a
               href="#subscribe"
               onClick={closeMenus}
-              className="hidden min-h-10 items-center rounded-sm bg-[#15100c] px-4 py-2 text-xs font-bold uppercase tracking-[0.08em] text-[#f4ead8] transition hover:bg-[#5a3826] sm:inline-flex"
+              className="hidden min-h-10 items-center rounded-sm bg-[#15100c] px-4 py-2 text-xs font-bold uppercase tracking-[0.08em] text-[#f4ead8] transition hover:bg-[#5a3826] md:inline-flex"
             >
               Subscribe
             </a>
@@ -156,7 +153,7 @@ export function Navigation() {
             <button
               type="button"
               onClick={() => setMobileOpen((value) => !value)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#15100c]/15 text-sm font-bold xl:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#15100c]/15 bg-[#f4ead8] text-sm font-bold text-[#15100c] xl:hidden"
               aria-label="Open navigation menu"
             >
               {mobileOpen ? '×' : '☰'}
@@ -164,8 +161,8 @@ export function Navigation() {
           </div>
         </div>
 
-        <nav className="hidden border-t border-[#15100c]/10 bg-[#fbf5ea]/82 xl:block">
-          <div className="mx-auto flex max-w-[1500px] items-center justify-center gap-7 px-8 py-2.5">
+        <nav className="hidden border-t border-[#15100c]/10 bg-[#fbf5ea] xl:block">
+          <div className="mx-auto flex max-w-[1500px] items-center justify-center gap-8 px-8 py-2.5">
             {links.map((link) => (
               <a
                 key={link.href}
@@ -229,7 +226,7 @@ export function Navigation() {
 
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[60] bg-[#15100c]/35 px-4 py-20 backdrop-blur-sm"
+          className="fixed inset-0 z-[110] bg-[#15100c]/35 px-4 py-20 backdrop-blur-sm"
           onClick={closeMenus}
         >
           <div
@@ -239,7 +236,7 @@ export function Navigation() {
             <div className="flex items-start justify-between gap-5 border-b border-[#15100c]/15 pb-5">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#5a3826]">
-                  Explore The Journal
+                  Explore The Stramont
                 </p>
 
                 <h2 className="mt-2 font-display text-5xl leading-none tracking-[-0.045em] text-[#15100c]">
@@ -263,7 +260,7 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={closeMenus}
-                  className="group flex items-center justify-between border-b border-[#15100c]/10 py-4 font-display text-3xl leading-none tracking-[-0.03em] transition hover:text-[#5a3826]"
+                  className="group flex items-center justify-between border-b border-[#15100c]/10 py-4 font-display text-3xl leading-none tracking-[-0.03em] text-[#15100c] transition hover:text-[#5a3826]"
                 >
                   {item.label}
                   <span className="text-base transition group-hover:translate-x-1">→</span>
@@ -277,7 +274,7 @@ export function Navigation() {
       {showHomeButton && (
         <a
           href="#home"
-          className="fixed bottom-5 right-5 z-50 rounded-full border border-[#15100c]/15 bg-[#f4ead8]/90 px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-[#15100c] shadow-paper backdrop-blur-xl transition hover:-translate-y-1 hover:bg-[#15100c] hover:text-[#f4ead8]"
+          className="fixed bottom-5 right-5 z-[90] rounded-full border border-[#15100c]/15 bg-[#f4ead8] px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-[#15100c] shadow-paper transition hover:-translate-y-1 hover:bg-[#15100c] hover:text-[#f4ead8]"
         >
           Home ↑
         </a>
